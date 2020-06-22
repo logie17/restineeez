@@ -65,15 +65,27 @@
 
   (process-send-string proc "Served\n"))
 
+(setq routes (list))
 
-(cl-defun GET (&key path fn))
+(cl-defun addroutehandler (&key type path fn)
+  (setq route (list "GET" path fn))
+  (setq routes (cons route routes)))
+
+(cl-defun GET (&key path fn)
+  (addroutehandler
+   :type "GET"
+   :fn 'fn
+   :path path))
+
 (cl-defun POST (&key path fn))
 (cl-defun PUT (&key path fn))
 
 (defun home(req res))
+
 (GET
  :path "/"
  :fn 'home)
+
 
 
 
