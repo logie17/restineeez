@@ -1,11 +1,86 @@
 (require 'cl-lib)
 
+(setq routes (list))
+
+(defvar response-codes
+  '((100 . "Continue")
+    (101 . "Switching Protocols")
+    (102 . "Processing")
+    (200 . "OK")
+    (201 . "Created")
+    (202 . "Accepted")
+    (203 . "Non-authoritative Information")
+    (204 . "No Content")
+    (205 . "Reset Content")
+    (206 . "Partial Content")
+    (207 . "Multi-Status")
+    (208 . "Already Reported")
+    (226 . "IM Used")
+    (300 . "Multiple Choices")
+    (301 . "Moved Permanently")
+    (302 . "Found")
+    (303 . "See Other")
+    (304 . "Not Modified")
+    (305 . "Use Proxy")
+    (307 . "Temporary Redirect")
+    (308 . "Permanent Redirect")
+    (400 . "Bad Request")
+    (401 . "Unauthorized")
+    (402 . "Payment Required")
+    (403 . "Forbidden")
+    (404 . "Not Found")
+    (405 . "Method Not Allowed")
+    (406 . "Not Acceptable")
+    (407 . "Proxy Authentication Required")
+    (408 . "Request Timeout")
+    (409 . "Conflict")
+    (410 . "Gone")
+    (411 . "Length Required")
+    (412 . "Precondition Failed")
+    (413 . "Payload Too Large")
+    (414 . "Request-URI Too Long")
+    (415 . "Unsupported Media Type")
+    (416 . "Requested Range Not Satisfiable")
+    (417 . "Expectation Failed")
+    (418 . "I'm a teapot")
+    (421 . "Misdirected Request")
+    (422 . "Unprocessable Entity")
+    (423 . "Locked")
+    (424 . "Failed Dependency")
+    (426 . "Upgrade Required")
+    (428 . "Precondition Required")
+    (429 . "Too Many Requests")
+    (431 . "Request Header Fields Too Large")
+    (444 . "Connection Closed Without Response")
+    (451 . "Unavailable For Legal Reasons")
+    (499 . "Client Closed Request")
+    (500 . "Internal Server Error")
+    (501 . "Not Implemented")
+    (502 . "Bad Gateway")
+    (503 . "Service Unavailable")
+    (504 . "Gateway Timeout")
+    (505 . "HTTP Version Not Supported")
+    (506 . "Variant Also Negotiates")
+    (507 . "Insufficient Storage")
+    (508 . "Loop Detected")
+    (510 . "Not Extended")
+    (511 . "Network Authentication Required")
+    (599 . "Network Connect Timeout Error")))
+
 (defun httpd--normalize-header (header)
   "Destructively capitalize the components of HEADER."
   (mapconcat #'capitalize (split-string header "-") "-"))
 
+(defun find-route (list name)
+  "Find routes in our alist"
+  (assoc name list))
+
+(defun http-response-header (code)
+  (let ((status (cdr (assq code response-codes))))
+    (let ((header (format "HTTP/1.1 %d %s\r\n\r\n" code status)))
+      header)))
+
 (defun httpd-parse-header (header)
-  (print header)
   (setq start 0)
   (when (string-match "\\([^ ]+\\) +\\([^ ]+\\) +\\([^\r]+\\)\r\n" header)
     (let (
@@ -43,6 +118,7 @@
     (push (if p2 (httpd-unhex (substring uri (1+ p2)))) retval)
     (push (if p1 (httpd-parse-args (substring uri (1+ p1) p2))) retval)
     (push (substring uri 0 (or p1 p2)) retval)))
+
 (defun server-filter (proc string)
   (let ((request (process-get proc :request)))
     (print string)
@@ -60,16 +136,17 @@
               ;(process-put proc :request nil)
             (setf request (nreverse (cons (list "Content" content)
                                           (nreverse request))))
-            (print uri-path)
-            ))))
+            (when (setf routeinfo (find-route routes uri-path))
+              (let ((response_header (http-response-header 200)))
+                (process-send-string proc response_header)
+                ))
+            (process-send-eof proc))))))
 
-  (process-send-string proc "Served\n"))
 
-(setq routes (list))
 
 (cl-defun addroutehandler (&key type path fn)
-  (setq route (list "GET" path fn))
-  (setq routes (cons route routes)))
+  (setq routes (cons (cons path fn) routes)))
+  ;; (setq routes (cons (list (cons path fn)) routes)))
 
 (cl-defun GET (&key path fn)
   (addroutehandler
@@ -86,8 +163,12 @@
  :path "/"
  :fn 'home)
 
+(GET
+ :path "/aaaa"
+ :fn 'home)
 
 
+(print routes)
 
 (make-network-process :name "emacs-http-server"
                       :server t
