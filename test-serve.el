@@ -3,7 +3,7 @@
 
 ;; Use (load-file) below because we want to always to read the source.
 ;; Also, we don't want no stinking compiled source.
-(assert-t (load-file "./serve2.el")
+(assert-t (load-file "./serve.el")
 	  "Can't load serve.el - are you in the right directory?" )
 
 
