@@ -173,10 +173,16 @@
 (defun start-server ()
   (make-network-process :name "emacs-http-server"
                         :server t
-                        :service 8081
+                        :service 8082
                         :family 'ipv4
                         :filter 'server-filter)
   (print "The webserver is up!")
   (while t (sleep-for 60)))
+
+(defun httpd-stop ()
+  "Stop the web server"
+  (interactive)
+  (when (process-status "emacs-http-server")
+    (delete-process "emacs-http-server")))
 
 (provide 'serve)
