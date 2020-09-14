@@ -170,10 +170,13 @@
 
 (print routes)
 
-(make-network-process :name "emacs-http-server"
-                      :server t
-                      :service 8081
-                      :family 'ipv4
-                      :filter 'server-filter)
-(print "The webserver is up!")
-(while t (sleep-for 60))
+(defun start-server ()
+  (make-network-process :name "emacs-http-server"
+                        :server t
+                        :service 8081
+                        :family 'ipv4
+                        :filter 'server-filter)
+  (print "The webserver is up!")
+  (while t (sleep-for 60)))
+
+(provide 'serve)
