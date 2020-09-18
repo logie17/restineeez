@@ -139,6 +139,7 @@
             (when (setf routeinfo (find-route routes uri-path))
               (let ((response_header (http-response-header 200)))
                 (process-send-string proc response_header)
+                (process-send-string proc "Date: Mon, 27 Jul 2009 12:28:53 GMT\nServer: restineeze (OS/2 Warp)\nLast-Modified: Wed, 22 Jul 2009 19:15:56 GMT\nContent-Length: 88\nContent-Type: text/html\nConnection: Closed\n\n<html>\n<body>\n<h1>Hello, World!</h1></body></html>")
                 ))
             (process-send-eof proc))))))
 
@@ -159,25 +160,18 @@
 
 (defun home(req res))
 
-(GET
- :path "/"
- :fn 'home)
-
-(GET
- :path "/aaaa"
- :fn 'home)
-
-
-(print routes)
-
 (defun start-server ()
+  "This starts eserver"
+  (interactive)
   (make-network-process :name "emacs-http-server"
                         :server t
-                        :service 8082
+                        :service 8083
                         :family 'ipv4
                         :filter 'server-filter)
   (print "The webserver is up!")
-  (while t (sleep-for 60)))
+  (while t (sleep-for 60))
+  (print "The webserver is up!")
+  )
 
 (defun httpd-stop ()
   "Stop the web server"
@@ -186,3 +180,5 @@
     (delete-process "emacs-http-server")))
 
 (provide 'serve)
+
+;(start-server)
