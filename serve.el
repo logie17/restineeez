@@ -2,6 +2,15 @@
 
 (setq routes (list))
 
+(defgroup restineeze nil
+  "Emacs HTTP server."
+  :group 'tools)
+
+(defcustom restineeze-port 8080
+  "The port for the web server"
+  :type 'number
+  :group 'restineeze)
+
 (defvar response-codes
   '((100 . "Continue")
     (101 . "Switching Protocols")
@@ -153,7 +162,7 @@
   (interactive)
   (make-network-process :name "emacs-http-server"
                         :server t
-                        :service 8083
+                        :service restineeze-port
                         :family 'ipv4
                         :filter 'server-filter)
   (print "The webserver is up!")
