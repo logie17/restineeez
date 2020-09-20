@@ -155,8 +155,6 @@
 
 
 
-(defun home(req res))
-
 (defun start-server ()
   "This starts eserver"
   (interactive)

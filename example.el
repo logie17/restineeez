@@ -2,6 +2,9 @@
 
 (setq restineeze-port 8085)
 
+(defun home(req res))
+
+
 (GET
  :path "/"
  :fn 'home)
