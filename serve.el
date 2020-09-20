@@ -165,10 +165,8 @@
                         :service restineeze-port
                         :family 'ipv4
                         :filter 'server-filter)
-  (print "The webserver is up!")
-  (while t (sleep-for 60))
-  (print "The webserver is up!")
-  )
+  (print (format "The webserver is up on port: %d" restineeze-port))
+  (while t (sleep-for 60)))
 
 (defun httpd-stop ()
   "Stop the web server"
