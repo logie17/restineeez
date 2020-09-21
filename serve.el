@@ -156,14 +156,10 @@
               (setf status (cdr (assoc :status res)))
               (let ((response_header (http-response-header status)))
                 (process-send-string proc response_header)
-                (process-send-string proc "Date: Mon, 27 Jul 2009 12:28:53 GMT\nServer: restineeze (OS/2 Warp)\nLast-Modified: Wed, 22 Jul 2009 19:15:56 GMT\nContent-Length: 88\nContent-Type: text/html\nConnection: Closed\n\n")
-                (print routeinfo)
-
+                (process-send-string proc (format-time-string "Date: %a, %d %b %Y %H:%M:%S %Z\n"))
+                (process-send-string proc "Server: restineeze (OS/2 Warp)\nLast-Modified: Wed, 22 Jul 2009 19:15:56 GMT\nContent-Length: 88\nContent-Type: text/html\nConnection: Closed\n\n")
                 (process-send-string proc body)))
             (process-send-eof proc))))))
-
-
-
 
 (defun start-server ()
   "This starts eserver"
