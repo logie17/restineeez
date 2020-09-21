@@ -7,7 +7,7 @@
 (cl-defun GET (&key path fn)
   (addroutehandler
    :type "GET"
-   :fn 'fn
+   :fn fn
    :path path))
 
 (cl-defun POST (&key path fn))

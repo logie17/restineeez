@@ -2,6 +2,10 @@
 
 (setq routes (list))
 
+(setq res
+      '((:status . nil)
+        (:body . nil)))
+
 (defgroup restineeze nil
   "Emacs HTTP server."
   :group 'tools)
@@ -111,7 +115,7 @@
 (defun httpd-parse-args (argstr)
   "Parse a string containing URL encoded arguments."
   (unless (zerop (length argstr))
-    (mapcar (lambda (str)
+    (mxapcar (lambda (str)
               (mapcar 'httpd-unhex (split-string str "=")))
             (split-string argstr "&"))))
 
@@ -146,10 +150,16 @@
             (setf request (nreverse (cons (list "Content" content)
                                           (nreverse request))))
             (when (setf routeinfo (find-route routes uri-path))
-              (let ((response_header (http-response-header 200)))
+              (setf handler (cdr routeinfo))
+              (setf res (funcall handler "" res))
+              (setf body (cdr (assoc :body res)))
+              (setf status (cdr (assoc :status res)))
+              (let ((response_header (http-response-header status)))
                 (process-send-string proc response_header)
-                (process-send-string proc "Date: Mon, 27 Jul 2009 12:28:53 GMT\nServer: restineeze (OS/2 Warp)\nLast-Modified: Wed, 22 Jul 2009 19:15:56 GMT\nContent-Length: 88\nContent-Type: text/html\nConnection: Closed\n\n<html>\n<body>\n<h1>Hello, World!</h1></body></html>")
-                ))
+                (process-send-string proc "Date: Mon, 27 Jul 2009 12:28:53 GMT\nServer: restineeze (OS/2 Warp)\nLast-Modified: Wed, 22 Jul 2009 19:15:56 GMT\nContent-Length: 88\nContent-Type: text/html\nConnection: Closed\n\n")
+                (print routeinfo)
+
+                (process-send-string proc body)))
             (process-send-eof proc))))))
 
 

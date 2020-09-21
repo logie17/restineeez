@@ -2,8 +2,10 @@
 
 (setq restineeze-port 8085)
 
-(defun home(req res))
-
+(defun home(req res)
+  (add-to-list 'res '(:status . 200))
+  (add-to-list 'res '(:body . "Hello World"))
+  res)
 
 (GET
  :path "/"
@@ -11,6 +13,9 @@
 
 (GET
  :path "/aaaa"
- :fn 'home)
+ :fn (lambda (req res)
+       (add-to-list 'res '(:status . 200))
+       (add-to-list 'res '(:body . "Hello World"))
+       res))
 
 (start-server)
