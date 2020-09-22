@@ -15,6 +15,11 @@
   :type 'number
   :group 'restineeze)
 
+(defcustom restineeze-server-name "restineeze (OS/2 Warp)"
+  "The name of the server"
+  :type 'string
+  :group 'restineeze)
+
 (defvar response-codes
   '((100 . "Continue")
     (101 . "Switching Protocols")
@@ -157,13 +162,17 @@
               (let ((response_header (http-response-header status)))
                 (process-send-string proc response_header)
                 (process-send-string proc (format-time-string "Date: %a, %d %b %Y %H:%M:%S %Z\n"))
-                (process-send-string proc "Server: restineeze (OS/2 Warp)\nLast-Modified: Wed, 22 Jul 2009 19:15:56 GMT\nContent-Length: 88\nContent-Type: text/html\nConnection: Closed\n\n")
+                (process-send-string proc (format "Server: %s\n" restineeze-server-name))
+                (process-send-string proc (format "Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT\nContent-Length: %d\n" (string-bytes body)))
+                (process-send-string proc "Content-Type: text/html\n")
+                (process-send-string proc "Connection: Closed\n\n")
                 (process-send-string proc body)))
             (process-send-eof proc))))))
 
 (defun start-server ()
   "This starts eserver"
   (interactive)
+
   (make-network-process :name "emacs-http-server"
                         :server t
                         :service restineeze-port
